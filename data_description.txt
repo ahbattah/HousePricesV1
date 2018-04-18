@@ -521,3 +521,24 @@ SaleCondition: Condition of sale
        Alloca	Allocation - two linked properties with separate deeds, typically condo with a garage unit	
        Family	Sale between family members
        Partial	Home was not completed when last assessed (associated with New Homes)
+
+===================================================================
+
+LotFrontage		NA = to impute			  X
+Alley			    NA = Not available		X
+MasVnrType		NA = to impute			  X
+MasVnrArea		NA = to impute			  X
+BsmtQual		  NA = No basement		  X
+BsmtCond		  NA = No basement		  X
+BsmtExposure	NA = No basement		  X
+BsmtFinType1	NA = No basement		  X
+BsmtFinType2	NA = No basement		  X
+Electrical		NA = to impute			  X
+GarageType		NA = No garage			  X
+GarageYrBlt		NA = No garage			  X
+GarageFinish	NA = No garage			  X
+GarageQual		NA = No garage			  X
+GarageCond		NA = No garage			  X
+PoolQC			  NA = No pool			    X
+Fence			    NA = No fence			    X
+MiscFeature		NA = None				      X
