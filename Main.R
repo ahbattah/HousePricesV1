@@ -2,6 +2,7 @@
 library(tidyverse)
 library(ranger)
 library(xgboost)
+library(vtreat)
 
 train_full <- read.csv("train.csv")
 dim(train_full)
@@ -109,7 +110,10 @@ cat("Mean actual values = ", mean(test$SalePrice),
         "\nMean predicted values = ", mean(test$predRNGR))
 
 # Second approach - xgboost
-# Variables without predictor
-vars <- names(train_full)[-length(names(train_full))]
+set.seed(1234)
 train_full_xgb <- train_full[sample(1 : nrow(train_full)), ]
 
+
+# Variables without predictor
+vars <- names(train_full)[-length(names(train_full))]
+treatplan <- desi
