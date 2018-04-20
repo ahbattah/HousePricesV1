@@ -1,5 +1,7 @@
 
 library(tidyverse)
+library(ranger)
+library(xgboost)
 
 train_full <- read.csv("train.csv")
 dim(train_full)
@@ -93,8 +95,6 @@ train <- train_full[train_ind, ]
 test <- train_full[-train_ind, ]
 
 # First approach - Random forest
-library(ranger)
-
 ranger_model <- ranger(SalePrice ~ ., data = train, num.trees = 500,
                        respect.unordered.factors = "order", 
                        seed = set.seed(1234))
@@ -107,4 +107,9 @@ test %>% mutate(residualRNGR = SalePrice - predRNGR) %>%
 
 cat("Mean actual values = ", mean(test$SalePrice), 
         "\nMean predicted values = ", mean(test$predRNGR))
+
+# Second approach - xgboost
+# Variables without predictor
+vars <- names(train_full)[-length(names(train_full))]
+train_full_xgb <- train_full[sample(1 : nrow(train_full)), ]
 
