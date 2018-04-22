@@ -3,6 +3,7 @@ library(tidyverse)
 library(ranger)
 library(xgboost)
 library(vtreat)
+library(magrittr)
 
 train_full <- read.csv("train.csv")
 dim(train_full)
@@ -86,34 +87,6 @@ train_full$MiscFeature <- `levels<-`(addNA(train_full$MiscFeature),
                                        "None"))
 
 
-# Shuffle and split train_full
-smp_size <- floor(.7 * nrow(train_full))
-
-set.seed(123)
-train_ind <- sample(seq_len(nrow(train_full)), size = smp_size)
-
-train <- train_full[train_ind, ]
-test <- train_full[-train_ind, ]
-
-# First approach - Random forest
-ranger_model <- ranger(SalePrice ~ ., data = train, num.trees = 500,
-                       respect.unordered.factors = "order", 
-                       seed = set.seed(1234))
-
-ranger_predict <- predict(ranger_model, test)
-test$predRNGR <- ranger_predict$predictions
-
-test %>% mutate(residualRNGR = SalePrice - predRNGR) %>% 
-  summarise(rmse = sqrt(mean(residualRNGR ^ 2)))
-
-cat("Mean actual values = ", mean(test$SalePrice), 
-        "\nMean predicted values = ", mean(test$predRNGR))
-
-# Second approach - xgboost
-set.seed(1234)
-train_full_xgb <- train_full[sample(1 : nrow(train_full)), ]
 
 
-# Variables without predictor
-vars <- names(train_full)[-length(names(train_full))]
-treatplan <- desi
+
