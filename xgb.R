@@ -72,7 +72,7 @@ train_xgb_treatN <- designTreatmentsN(train_xgb, vars, "SalePrice")
     select(varName, origName, code))
 
 (newvarsN <- scoreFrameN %>%
-    filter(code %in% c("clean", "lev")) %>%
+    filter(code %in% c("clean", "lev", "catN")) %>%
     use_series(varName))
 
 (train_prepN <- prepare(train_xgb_treatN, train_xgb, varRestriction = newvarsN))
