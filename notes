@@ -1,0 +1,60 @@
+
+# 1
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Shuffle the dataset, call the result shuffled
+n <- nrow(titanic)
+shuffled <- titanic[sample(n),]
+
+# Split the data in train and test
+train_indices <- 1 : round(0.7 * n)
+train <- shuffled[train_indices, ]
+test_indices <- (round(0.7 * n) + 1) : n
+test <- shuffled[test_indices, ]
+
+
+# 2
+sub <- sample(nrow(x), floor(nrow(x) * 0.9))
+training <- x[sub, ]
+testing <- x[-sub, ]
+
+# 3
+# split data into testing & training
+set.seed(1234)
+
+# train/test split
+training_indexs <- createDataPartition(player_statistics$solo_WinRatio, p = .2, list = F)
+training <- player_statistics[training_indexs, ]
+testing  <- player_statistics[-training_indexs, ]
+
+===============================================================================================
+RMSE
+smaller better
+y  is the true outcome, p is the prediction from the model
+res = y − p
+
+residuals <- prediction - outcome
+RMSE = sqrt(mean(residuals ^ 2))
+in compare with standard deviations of outcome
+sd_outcome = sd(outcome)
+
+R2
+Close to 1 is better
+R2 = 1 - (rss / tss)
+where
+	* RSS The residual sum of squared errors of the model
+	rss = sum(residuals ^ 2)
+	* TSS the total sum of squares tss ("total variance") of the data
+	tss = sum((outcom - mean(outcome)) ^ 2)
+
+=================================================================================================
+Poisson vs. Quasipoisson
+poisson assume theat mean(y) = var(y)
+if var(y) much different from mean(y) use quasipoisson
+
+In glm calculate pseudoR2
+pseudoR2 = 1 - (glance(model)$deviance / glance(model)$null.deviance)
+
+
+
