@@ -27,7 +27,7 @@ test_rngr %>% mutate(residualRNGR = SalePrice - pred) %>%
 caret::postResample(test_rngr$SalePrice, test_rngr$pred)[2]
 
 # Plot prediction vs actual
-ggplot(test_rngr, aes(x = pred, y = SalePrice)) + 
+ggplot(test_rngr, aes(x = log(pred), y = log(SalePrice))) + 
   geom_point() + 
   geom_abline()
 

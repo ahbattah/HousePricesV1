@@ -13,7 +13,7 @@ vars <- names(train_xgb)[-length(names(train_xgb))]
 train_xgb_treatZ <- designTreatmentsZ(train_xgb, vars)
 
 (scoreFrameZ <- train_xgb_treatZ %>%
-    use_series(scoreFrameZ) %>%
+    use_series(scoreFrame) %>%
     select(varName, origName, code))
 
 (newvarsZ <- scoreFrameZ %>%
@@ -24,6 +24,7 @@ train_xgb_treatZ <- designTreatmentsZ(train_xgb, vars)
 
 (test_prepZ <- prepare(train_xgb_treatZ, test_xgb, varRestriction = newvarsZ))
 
+set.seed(1234)
 cv_z <- xgb.cv(data = as.matrix(train_prepZ), label = train_xgb$SalePrice,
                nrounds = 100, nfold = 5, objective = "reg:linear",
                eta = 0.3, max_depth = 10, early_stopping_rounds = 10,
@@ -38,7 +39,7 @@ elog_z %>%
 # Model
 model_xgb_z <- xgboost(data = as.matrix(train_prepZ), 
                        label = train_xgb$SalePrice,
-                       nrounds = 49, objective = "reg:linear",
+                       nrounds = 68, objective = "reg:linear",
                        eta = 0.3, depth = 6, vervose = 0)
 
 # Prediction
@@ -51,13 +52,15 @@ cat("Mean actual values (Z) = ", mean(test_xgb$SalePrice),
 
 # RMSE
 test_xgb %>% mutate(residualXGB_Z = SalePrice - predZ) %>% 
-  summarise(rmse = sqrt(mean(residualXGB_Z ^ 2)))
+  summarise(rmse = sqrt(mean(residualXGB_Z ^ 2)),
+            r2 = 1 - (sum(residualXGB_Z ^ 2) / 
+                        sum((SalePrice - mean(SalePrice)) ^ 2)))
 
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
 caret::postResample(test_xgb$SalePrice, test_xgb$predZ)[2]
 
 # Plot prediction vs actual
-ggplot(test_xgb, aes(x = predZ, y = SalePrice)) + 
+ggplot(test_xgb, aes(x = log(predZ), y = log(SalePrice))) + 
   geom_point() + 
   geom_abline()
 
@@ -68,7 +71,7 @@ set.seed(1234)
 train_xgb_treatN <- designTreatmentsN(train_xgb, vars, "SalePrice")
 
 (scoreFrameN <- train_xgb_treatN %>%
-    use_series(scoreFrameN) %>%
+    use_series(scoreFrame) %>%
     select(varName, origName, code))
 
 (newvarsN <- scoreFrameN %>%
@@ -79,6 +82,7 @@ train_xgb_treatN <- designTreatmentsN(train_xgb, vars, "SalePrice")
 
 (test_prepN <- prepare(train_xgb_treatN, test_xgb, varRestriction = newvarsN))
 
+set.seed(1234)
 cv_n <- xgb.cv(data = as.matrix(train_prepN), label = train_xgb$SalePrice,
                nrounds = 100, nfold = 5, objective = "reg:linear",
                eta = 0.3, max_depth = 10, early_stopping_rounds = 10,
@@ -93,7 +97,7 @@ elog_n %>%
 # Model
 model_xgb_n <- xgboost(data = as.matrix(train_prepN), 
                        label = train_xgb$SalePrice,
-                       nrounds = 49, objective = "reg:linear",
+                       nrounds = 93, objective = "reg:linear",
                        eta = 0.3, depth = 6, vervose = 0)
 
 # Prediction
@@ -106,13 +110,15 @@ cat("Mean actual values (N) = ", mean(test_xgb$SalePrice),
 
 # RMSE
 test_xgb %>% mutate(residualXGB_N = SalePrice - predN) %>% 
-  summarise(rmse = sqrt(mean(residualXGB_N ^ 2)))
+  summarise(rmse = sqrt(mean(residualXGB_N ^ 2)),
+            r2 = 1 - (sum(residualXGB_N ^ 2) / 
+                        sum((SalePrice - mean(SalePrice)) ^ 2)))
 
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
 caret::postResample(test_xgb$SalePrice, test_xgb$predN)[2]
 
 # Plot prediction vs actual
-ggplot(test_xgb, aes(x = predN, y = SalePrice)) + 
+ggplot(test_xgb, aes(x = log(predN), y = log(SalePrice))) + 
   geom_point() + 
   geom_abline()
 
