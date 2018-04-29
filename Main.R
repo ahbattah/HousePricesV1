@@ -145,26 +145,26 @@ test$BsmtFinType2 <- `levels<-`(addNA(test$BsmtFinType2),
                                       c(levels(test$BsmtFinType2), 
                                         "No Basement"))
 
-test$BsmtFinSF1[is.na(test$BsmtFinSF1)] <- round(
-  mean(test$BsmtFinSF1, na.rm = TRUE))
+test$BsmtFinSF1[is.na(test$BsmtFinSF1)] <- as.integer(round(
+  mean(test$BsmtFinSF1, na.rm = TRUE)))
 
-test$BsmtFinSF2[is.na(test$BsmtFinSF2)] <- round(
-  median(test$BsmtFinSF2, na.rm = TRUE))
+test$BsmtFinSF2[is.na(test$BsmtFinSF2)] <- as.integer(round(
+  median(test$BsmtFinSF2, na.rm = TRUE)))
 
-test$BsmtUnfSF[is.na(test$BsmtUnfSF)] <- round(
-  median(test$BsmtUnfSF, na.rm = TRUE))
+test$BsmtUnfSF[is.na(test$BsmtUnfSF)] <- as.integer(round(
+  median(test$BsmtUnfSF, na.rm = TRUE)))
 
-test$TotalBsmtSF[is.na(test$TotalBsmtSF)] <- round(
-  mean(test$TotalBsmtSF, na.rm = TRUE))
+test$TotalBsmtSF[is.na(test$TotalBsmtSF)] <- as.integer(round(
+  mean(test$TotalBsmtSF, na.rm = TRUE)))
 
 test$Electrical <- `levels<-`(addNA(test$Electrical), 
                                     c(levels(test$Electrical), 
                                       "SBrkr"))
 
-test$BsmtFullBath[is.na(test$BsmtFullBath)] <- round(
-  mean(test$BsmtFullBath, na.rm = TRUE))
+test$BsmtFullBath[is.na(test$BsmtFullBath)] <- as.integer(round(
+  mean(test$BsmtFullBath, na.rm = TRUE)))
 
-test$BsmtHalfBath[is.na(test$BsmtHalfBath)] <- 0
+test$BsmtHalfBath[is.na(test$BsmtHalfBath)] <- as.integer(0)
 
 test$KitchenQual <- `levels<-`(addNA(test$KitchenQual), 
                               c(levels(test$KitchenQual), 
@@ -188,10 +188,10 @@ test$GarageFinish <- `levels<-`(addNA(test$GarageFinish),
                                 c(levels(test$GarageFinish), 
                                   "No Garage"))
 
-test$GarageCars[is.na(test$GarageCars)] <- round(
-  median(test$GarageCars, na.rm = TRUE))
+test$GarageCars[is.na(test$GarageCars)] <- as.integer(round(
+  median(test$GarageCars, na.rm = TRUE)))
 
-test$GarageArea[is.na(test$GarageArea)] <- 0
+test$GarageArea[is.na(test$GarageArea)] <- as.integer(0)
 
 
 test$GarageQual <- `levels<-`(addNA(test$GarageQual), 
@@ -218,4 +218,31 @@ test$SaleType <- `levels<-`(addNA(test$SaleType),
                               c(levels(test$SaleType), 
                                 "WD"))
 
+# Train result
+train_result <- data.frame(Algorithm = c("Random Forest", "XGBZ", "XGBN"),
+                           RMSE      = vector("numeric", 3),
+                           RSquared  = vector("numeric", 3))
 
+# Train result RMSE R2
+train_rmse_r2 <- data.frame(Algorithm = c("Random Forest", "XGBZ", "XGBN"),
+                           RMSE      = vector("numeric", 3),
+                           RSquared  = vector("numeric", 3))
+
+# Train predictions
+train_pred <- data.frame(SalePrice    = train$SalePrice,
+                         RandomForest = vector("numeric", nrow(train)),
+                         XGBZ         = vector("numeric", nrow(train)),
+                         XGBN         = vector("numeric", nrow(train)))
+
+
+# Test predictions
+test_pred <- data.frame(Id           = test$Id,
+                       RandomForest = vector("numeric", nrow(test)),
+                       XGBZ         = vector("numeric", nrow(test)),
+                       XGBN         = vector("numeric", nrow(test)))
+
+
+# Result
+prediction <- test_pred %>% select(Id, XGBZ)
+names(prediction)[names(prediction) == "XGBZ"] <- "SalePrice"
+write.csv(prediction, file = "prediction.csv", row.names = FALSE)

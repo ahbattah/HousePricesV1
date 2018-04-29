@@ -59,6 +59,14 @@ test_xgb %>% mutate(residualXGB_Z = SalePrice - predZ) %>%
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
 caret::postResample(test_xgb$SalePrice, test_xgb$predZ)[2]
 
+# Add R2 and RMSE to train_result
+train_result$RMSE[train_result$Algorithm == "XGB Z"] <- 
+  sqrt(mean((test_xgb$SalePrice - test_xgb$predZ) ^ 2))
+
+train_result$RSquared[train_result$Algorithm == "XGB Z"] <- 
+  1 - (sum((test_xgb$SalePrice - test_xgb$predZ) ^ 2) / 
+         sum((test_xgb$SalePrice - mean(test_xgb$SalePrice)) ^ 2))
+
 # Plot prediction vs actual
 ggplot(test_xgb, aes(x = log(predZ), y = log(SalePrice))) + 
   geom_point() + 
@@ -116,6 +124,14 @@ test_xgb %>% mutate(residualXGB_N = SalePrice - predN) %>%
 
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
 caret::postResample(test_xgb$SalePrice, test_xgb$predN)[2]
+
+# Add R2 and RMSE to train_result
+train_result$RMSE[train_result$Algorithm == "XGB N"] <- 
+  sqrt(mean((test_xgb$SalePrice - test_xgb$predN) ^ 2))
+
+train_result$RSquared[train_result$Algorithm == "XGB N"] <- 
+  1 - (sum((test_xgb$SalePrice - test_xgb$predN) ^ 2) / 
+         sum((test_xgb$SalePrice - mean(test_xgb$SalePrice)) ^ 2))
 
 # Plot prediction vs actual
 ggplot(test_xgb, aes(x = log(predN), y = log(SalePrice))) + 

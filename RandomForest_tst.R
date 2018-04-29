@@ -21,11 +21,21 @@ cat("Mean actual values = ", mean(test_rngr$SalePrice),
 
 # RMSE
 test_rngr %>% mutate(residualRNGR = SalePrice - pred) %>% 
-  summarise(rmse = sqrt(mean(residualRNGR ^ 2)))
+  summarise(rmse = sqrt(mean(residualRNGR ^ 2)),
+            r2 = 1 - (sum(residualRNGR ^ 2) / 
+                        sum((SalePrice - mean(SalePrice)) ^ 2)))
 
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
 caret::postResample(test_rngr$SalePrice, test_rngr$pred)[2]
 
+# Add R2 and RMSE to train_result
+train_result$RMSE[train_result$Algorithm == "Random Forest"] <- 
+  sqrt(mean((test_rngr$SalePrice - test_rngr$pred) ^ 2))
+
+train_result$RSquared[train_result$Algorithm == "Random Forest"] <- 
+  1 - (sum((test_rngr$SalePrice - test_rngr$pred) ^ 2) / 
+         sum((test_rngr$SalePrice - mean(test_rngr$SalePrice)) ^ 2))
+  
 # Plot prediction vs actual
 ggplot(test_rngr, aes(x = log(pred), y = log(SalePrice))) + 
   geom_point() + 

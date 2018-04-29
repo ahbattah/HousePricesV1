@@ -6,7 +6,7 @@ set.seed(1234)
 train_treatZ <- designTreatmentsZ(train, vars)
 
 (scoreFrameZ <- train_treatZ %>%
-    use_series(scoreFrameZ) %>%
+    use_series(scoreFrame) %>%
     select(varName, origName, code))
 
 (newvarsZ <- scoreFrameZ %>%
@@ -32,37 +32,45 @@ elog_z %>%
 # Model
 model_xgb_z <- xgboost(data = as.matrix(train_prepZ), 
                        label = train$SalePrice,
-                       nrounds = 49, objective = "reg:linear",
+                       nrounds = 94, objective = "reg:linear",
                        eta = 0.3, depth = 6, vervose = 0)
 
 # Prediction on train data
-train$predZ <- predict(model_xgb_z, as.matrix(train_treatZ))
+train_pred$XGBZ <- predict(model_xgb_z, as.matrix(train_prepZ))
 
-# RMSE
-train %>% mutate(residualXGB_Z = SalePrice - predZ) %>% 
+# RMSE and RSquared
+train_pred %>% mutate(residualXGB_Z = SalePrice - XGBZ) %>% 
   summarise(rmse = sqrt(mean(residualXGB_Z ^ 2)),
             r2 = 1 - (sum(residualXGB_Z ^ 2) / 
                         sum((SalePrice - mean(SalePrice)) ^ 2)))
 
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
-caret::postResample(train$SalePrice, test$predZ)[2]
+caret::postResample(train_pred$SalePrice, train_pred$XGBZ)[2]
+
+# Add R2 and RMSE to train_rmse_r2
+train_rmse_r2$RMSE[train_rmse_r2$Algorithm == "XGBZ"] <- 
+  sqrt(mean((train_pred$SalePrice - train_pred$XGBZ) ^ 2))
+
+train_rmse_r2$RSquared[train_rmse_r2$Algorithm == "XGBZ"] <- 
+  1 - (sum((train_pred$SalePrice - train_pred$XGBZ) ^ 2) / 
+         sum((train_pred$SalePrice - mean(train_pred$SalePrice)) ^ 2))
 
 # Plot prediction vs actual
-ggplot(train, aes(x = predZ, y = SalePrice)) + 
+ggplot(train_pred, aes(x = XGBZ, y = SalePrice)) + 
   geom_point() + 
   geom_abline()
 
 # Prediction on test data
-pred_z <- predict(model_xgb_z, as.matrix(test_prepZ))
+test_pred$XGBZ <- predict(model_xgb_z, as.matrix(test_prepZ))
 
 
 # =======================================================================
-# Second: Using designTreatmentsN
+# Second: Using designTreatmentsN (Not recommended)
 set.seed(1234)
 train_treatN <- designTreatmentsN(train, vars, "SalePrice")
 
 (scoreFrameN <- train_treatN %>%
-    use_series(scoreFrameN) %>%
+    use_series(scoreFrame) %>%
     select(varName, origName, code))
 
 (newvarsN <- scoreFrameN %>%
@@ -88,24 +96,33 @@ elog_n %>%
 # Model
 model_xgb_n <- xgboost(data = as.matrix(train_prepN), 
                        label = train$SalePrice,
-                       nrounds = 49, objective = "reg:linear",
+                       nrounds = 67, objective = "reg:linear",
                        eta = 0.3, depth = 6, vervose = 0)
 
 # Prediction on train data
-train$predN <- predict(model_xgb_n, as.matrix(train_treatN))
+train_pred$XGBN <- predict(model_xgb_n, as.matrix(train_prepN))
 
-
-# RMSE
-test %>% mutate(residualXGB_N = SalePrice - predN) %>% 
-  summarise(rmse = sqrt(mean(residualXGB_N ^ 2)))
+# RMSE and RSquared
+train_pred %>% mutate(residualXGB_N = SalePrice - XGBN) %>% 
+  summarise(rmse = sqrt(mean(residualXGB_N ^ 2)),
+            r2 = 1 - (sum(residualXGB_N ^ 2) / 
+                        sum((SalePrice - mean(SalePrice)) ^ 2)))
 
 # R2 1- RMSE 2- Rsquared 3- Mean Absolute Error (MAE)
-caret::postResample(test$SalePrice, test$predN)[2]
+caret::postResample(train_pred$SalePrice, train_pred$XGBN)[2]
+
+# Add R2 and RMSE to train_rmse_r2
+train_rmse_r2$RMSE[train_rmse_r2$Algorithm == "XGBN"] <- 
+  sqrt(mean((train_pred$SalePrice - train_pred$XGBN) ^ 2))
+
+train_rmse_r2$RSquared[train_rmse_r2$Algorithm == "XGBN"] <- 
+  1 - (sum((train_pred$SalePrice - train_pred$XGBN) ^ 2) / 
+         sum((train_pred$SalePrice - mean(train_pred$SalePrice)) ^ 2))
 
 # Plot prediction vs actual
-ggplot(test, aes(x = predN, y = SalePrice)) + 
+ggplot(train_pred, aes(x = XGBN, y = SalePrice)) + 
   geom_point() + 
   geom_abline()
 
 # Prediction on test data
-predN <- predict(model_xgb_n, as.matrix(test_prepN))
+test_pred$XGBN <- predict(model_xgb_n, as.matrix(test_prepN))
