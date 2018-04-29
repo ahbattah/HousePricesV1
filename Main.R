@@ -245,4 +245,4 @@ test_pred <- data.frame(Id           = test$Id,
 # Result
 prediction <- test_pred %>% select(Id, XGBZ)
 names(prediction)[names(prediction) == "XGBZ"] <- "SalePrice"
-write.csv(prediction, file = "prediction.csv", row.names = FALSE)
+write.csv(prediction, file = "prediction.csv", row.names = FALSE, quote = FALSE)
